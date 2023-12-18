@@ -95,6 +95,8 @@ def load_datasets():
     datasets = []
     datasets_size = 0
     for dataset_path in RunConfig.dataset_paths:
+        if 'HOME' not in os.environ:
+            os.environ['HOME'] = os.environ['USERPROFILE']
         dataset_path = dataset_path.replace('~', os.environ['HOME'])
         print("Loading dataset {}".format(dataset_path))
         dataset = PedDataset(dataset_path=dataset_path, sequence_length=RunConfig.sequence_length, observed_history=RunConfig.observed_history, \
