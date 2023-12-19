@@ -3,6 +3,7 @@ import sys
 import copy
 import glob
 import json
+import csv
 
 import numpy as np
 import torch
@@ -10,13 +11,13 @@ from torch.utils.data import Dataset
 
 from dataset_utils import *
 
-
-class PedDataset(Dataset):
+  
+class PedDatasetCSV(Dataset):
     """
     Datset of pedestrian trajectories.
     """
     def __init__(self, dataset_path, sequence_length, observed_history, min_sequence_length):
-        super(PedDataset, self).__init__()
+        super(PedDatasetCSV, self).__init__()
         self.dataset_path = dataset_path
         self.sequence_length = sequence_length
         self.min_sequence_length = min_sequence_length
@@ -31,7 +32,7 @@ class PedDataset(Dataset):
             self.initialize_dataset()
 
     def initialize_dataset(self):
-        data_path_expanded = os.path.join(self.dataset_path, 'data', '*.json')
+        data_path_expanded = os.path.join(self.dataset_path, 'data', '*.csv')
         detection_paths = glob.glob(data_path_expanded)
         assert(len(detection_paths) > 0)
         self.detection_timestamps, self.detection_paths = self._ordered_timestamp_detection_paths(detection_paths)
@@ -47,11 +48,10 @@ class PedDataset(Dataset):
     def _ordered_timestamp_detection_paths(self, detection_paths):
         ordered_detections = []
         for detection_path in detection_paths:
-            detection_file = open(detection_path, 'r')
-            detection = json.load(detection_file)
-            detection_file.close()
-            detection = detection
-            ordered_detections.append((detection['timestamp'], detection_path))
+            with open(detection_path, 'r') as csv_file:
+                csv_reader = csv.reader(csv_file)
+                timestamps = float(next(csv_reader)[0])
+                ordered_detections.append((['timestamp'], detection_path))
 
         ordered_detections = sorted(ordered_detections)
         timestamps, new_detection_paths = map(list, zip(*ordered_detections))
@@ -79,14 +79,15 @@ class PedDataset(Dataset):
     def _load_all_detections(self):
         detections = []
         for detection_path in self.detection_paths:
-            detection = self._load_detection(detection_path)
-            detections.append(detection)
+            detections.append(self._load__detection(detection_path))
         return detections
 
     def _load_detection(self, detection_path):
-        with  open(detection_path, 'r') as detection_file:
-            detection_json = json.load(detection_file)
-        detection = Detection.from_json(detection_json)
+        with open(detection_path, 'r') as csv_file:
+            csv_reader = csv.reader(csv_file)
+            data = [list(map(float,row)) for row in csv_reader]
+
+        detection = Detection.from_csv(data)
         return detection
 
     def _slice_samples_by_sequence_length(self):
