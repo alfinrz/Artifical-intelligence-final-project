@@ -1,31 +1,22 @@
 import torch
 
-
-def avg_disp(y_pred, y_true):
+def average_displacement(predicted, true):
     """ Average displacement error. """
-    y_true, masks = y_true
+    true, masks = true
+    sequence_lengths = masks.sum(1)
+    batch_size = len(sequence_lengths)
+    squared_distance = (true - predicted)**2
+    l2_distance = masks * torch.sqrt(squared_distance.sum(2))
+    average_l2_distance = (1. / batch_size) * ((1. / sequence_lengths) * l2_distance.sum(1)).sum()
+    return average_l2_distance.item()
 
-    seq_lengths = masks.sum(1)
-    batch_size = len(seq_lengths)
-
-    squared_dist = (y_true - y_pred)**2
-    l2_dist = masks * torch.sqrt(squared_dist.sum(2))
-
-    avg_l2_dist = (1./batch_size) * ((1./seq_lengths) * l2_dist.sum(1)).sum()
-    return avg_l2_dist.item()
-
-
-def final_disp(y_pred, y_true):
+def final_displacement(predicted, true):
     """ Final displacement error """
-    y_true, masks = y_true
-
-    seq_lengths = masks.sum(1).type(torch.LongTensor) - 1
-    batch_size = len(seq_lengths)
-
-    squared_dist = (y_true - y_pred)**2
-    l2_dists = masks * torch.sqrt(squared_dist.sum(2))
-
-    disp_sum = l2_dists[:, seq_lengths].sum()
-    avg_final_l2_disp = (1./batch_size) * disp_sum
-
-    return avg_final_l2_disp.item()
+    true, masks = true
+    sequence_lengths = masks.sum(1).type(torch.LongTensor) - 1
+    batch_size = len(sequence_lengths)
+    squared_distance = (true - predicted)**2
+    l2_distances = masks * torch.sqrt(squared_distance.sum(2))
+    displacement_sum = l2_distances[:, sequence_lengths].sum()
+    average_final_l2_displacement = (1. / batch_size) * displacement_sum
+    return average_final_l2_displacement.item()
