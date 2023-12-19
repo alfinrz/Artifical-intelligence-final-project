@@ -6,6 +6,8 @@ import torch.optim as optim
 from metrics import *
 from pedestrian import *
 
+import matplotlib.pyplot as plt
+
 class RunConfig: # this is a class that contains all the hyperparameters
     sequence_length = 20
     min_sequence_length = 10
@@ -50,6 +52,8 @@ class ConstantVelocityModel(nn.Module): # this is a class that contains the cons
         return self.linear(y_pred_rel.view(y_pred_rel.size(0), -1))
 
 def train_cvm_model(model, train_loader, criterion, optimizer, num_epochs=10): # this function trains the CVM model
+    loss_val = []
+    
     model.train()
 
     for epoch in range(num_epochs):
@@ -71,10 +75,24 @@ def train_cvm_model(model, train_loader, criterion, optimizer, num_epochs=10): #
 
         avg_loss = running_loss / len(train_loader)
         print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {avg_loss}")
+        loss_val.append(avg_loss)
+    return loss_val
 
 # Use this function to create a DataLoader for your training dataset
 def create_train_loader(trainset, batch_size):
     return torch.utils.data.DataLoader(dataset=trainset, batch_size=batch_size, shuffle=True)
+
+# This function plots the graphs for the results of the training
+def plot_training_history(train_loss):
+    epochs = range(1, len(train_loss) + 1)
+    
+    plt.figure(figsize=(15, 7))
+    plt.plot(epochs, train_loss, label='Training Loss')
+    plt.xlabel("Epochs")
+    plt.ylabel("Loss")
+    plt.legend()
+
+    plt.show()
 
 def main():
     # Load datasets
@@ -92,8 +110,12 @@ def main():
     criterion = nn.MSELoss()  # You may need to choose an appropriate loss function
     optimizer = optim.Adam(cvm_model.parameters(), lr=0.001)  # Adjust the learning rate as needed
 
-    # Train the CVM model
-    train_cvm_model(cvm_model, train_loader, criterion, optimizer, num_epochs=10)
+    # Train the CVM model and store the result in a variable
+    train_loss = train_cvm_model(cvm_model, train_loader, criterion, optimizer, num_epochs=10)
+
+    # Plots the loss graph
+    plot_training_history(train_loss)
+
 
     # Now you can use the trained model for evaluation or other tasks
 if __name__ == "__main__":
