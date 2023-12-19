@@ -19,11 +19,11 @@ class RunConfig:
     sample_angle_std = 25
 
     dataset_paths = [
-                     "./data/eth_univ",
-                     "./data/eth_hotel",
-                     "./data/ucy_zara01",
-                     "./data/ucy_zara02",
-                     "./data/ucy_univ"
+                     "./data_csv/eth_univ",
+                     "./data_csv/eth_hotel",
+                     "./data_csv/ucy_zara01",
+                     "./data_csv/ucy_zara02",
+                     "./data_csv/ucy_univ"
                     ]
 
 def rel_to_abs(rel_traj, start_pos):
@@ -99,7 +99,7 @@ def load_datasets():
             os.environ['HOME'] = os.environ['USERPROFILE']
         dataset_path = dataset_path.replace('~', os.environ['HOME'])
         print("Loading dataset {}".format(dataset_path))
-        dataset = PedDataset(dataset_path=dataset_path, sequence_length=RunConfig.sequence_length, observed_history=RunConfig.observed_history, \
+        dataset = PedDatasetCSV(dataset_path=dataset_path, sequence_length=RunConfig.sequence_length, observed_history=RunConfig.observed_history, \
                               min_sequence_length=RunConfig.min_sequence_length)
         datasets.append(dataset)
         datasets_size += len(dataset)
