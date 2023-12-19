@@ -6,10 +6,7 @@ import numpy as np
 import torch.utils.data as Data
 
 from metrics import *
-
-from dataset import *
 from pedestrian import *
-
 
 
 class RunConfig:
@@ -102,7 +99,7 @@ def load_datasets():
             os.environ['HOME'] = os.environ['USERPROFILE']
         dataset_path = dataset_path.replace('~', os.environ['HOME'])
         print("Loading dataset {}".format(dataset_path))
-        dataset = dataset(dataset_path=dataset_path, sequence_length=RunConfig.sequence_length, observed_history=RunConfig.observed_history, \
+        dataset = PedDataset(dataset_path=dataset_path, sequence_length=RunConfig.sequence_length, observed_history=RunConfig.observed_history, \
                               min_sequence_length=RunConfig.min_sequence_length)
         datasets.append(dataset)
         datasets_size += len(dataset)
