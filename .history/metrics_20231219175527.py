@@ -1,6 +1,6 @@
 import torch
 
-def avg_disp(predicted, true):
+def average_displacement(predicted, true):
     """ Average displacement error. """
     true, masks = true
     sequence_lengths = masks.sum(1)
@@ -10,7 +10,7 @@ def avg_disp(predicted, true):
     average_l2_distance = (1. / batch_size) * ((1. / sequence_lengths) * l2_distance.sum(1)).sum()
     return average_l2_distance.item()
 
-def final_disp(predicted, true):
+def final_displacement(predicted, true):
     """ Final displacement error """
     true, masks = true
     sequence_lengths = masks.sum(1).type(torch.LongTensor) - 1
