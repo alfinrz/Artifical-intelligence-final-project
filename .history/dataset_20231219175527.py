@@ -1,6 +1,6 @@
-import json # for reading json files
+import json
 
-class ObjectDetection: # class for storing object detection data
+class ObjectDetection:
     def __init__(self, id, position):
         self.id = id
         self.position = position
@@ -9,7 +9,7 @@ class ObjectDetection: # class for storing object detection data
     def from_json(json_obj):
         return ObjectDetection(json_obj['id'], json_obj['position'])
 
-class DetectionData: # class for storing detection data
+class DetectionData:
     def __init__(self, timestamp, size, object_list):
         self.timestamp = timestamp
         self.size = size
@@ -22,13 +22,13 @@ class DetectionData: # class for storing detection data
         object_list = [ObjectDetection.from_json(obj) for obj in json_detection['object_list']]
         return DetectionData(timestamp, size, object_list)
 
-    def objects(self): 
+    def objects(self):
         return self.object_list
 
     def __len__(self):
         return len(self.object_list)
 
-class TrajectoryData: # class for storing trajectory data
+class TrajectoryData:
     def __init__(self, id, start_time, positions=None):
         self.id = id
         self.start_time = start_time
@@ -40,7 +40,7 @@ class TrajectoryData: # class for storing trajectory data
     def __len__(self):
         return len(self.positions)
 
-class SampleData: # class for storing sample data
+class SampleData:
     def __init__(self, id, start_time, positions=None):
         self.trajectory = TrajectoryData(id, start_time, positions)
 
@@ -82,3 +82,6 @@ class SampleData: # class for storing sample data
             sliced_samples.append(new_sample)
 
         return sliced_samples
+
+
+

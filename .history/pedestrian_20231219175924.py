@@ -1,4 +1,3 @@
- # importing libraries
 import os
 import glob
 import json
@@ -8,7 +7,7 @@ import torch
 from torch.utils.data import Dataset
 from dataset import *
 
-class PedestrianDataset(Dataset): # class for storing pedestrian dataset
+class PedestrianDataset(Dataset):
     """
     Dataset of pedestrian trajectories.
     """
@@ -27,7 +26,7 @@ class PedestrianDataset(Dataset): # class for storing pedestrian dataset
         if self.path is not None:
             self.init_dataset()
 
-    def init_dataset(self): # initialize dataset
+    def init_dataset(self):
         expanded_path = os.path.join(self.path, 'data', '*.json')
         paths = glob.glob(expanded_path)
         assert(len(paths) > 0)
@@ -41,7 +40,7 @@ class PedestrianDataset(Dataset): # class for storing pedestrian dataset
     def __len__(self):
         return self.dataset_size
         
-    def order_timestamp_paths(self, paths): # order timestamp paths
+    def order_timestamp_paths(self, paths):
         ordered_detections = []
         for path in paths:
             with open(path, 'r') as file:
@@ -52,13 +51,13 @@ class PedestrianDataset(Dataset): # class for storing pedestrian dataset
         timestamps, new_paths = map(list, zip(*ordered_detections))
         return timestamps, new_paths
 
-    def create_sequences(self): # create sequences
+    def create_sequences(self):
         detections = self.load_detections()
         samples = self.create_samples(detections)
         self.data_samples = list(samples.values())
         self.data_samples = self.slice_sequences()
 
-    def create_samples(self, detections): # create samples
+    def create_samples(self, detections):
         samples = dict()
 
         for detection in detections:
@@ -66,32 +65,32 @@ class PedestrianDataset(Dataset): # class for storing pedestrian dataset
 
             for obj in detection.objects():
                 if obj.id not in samples:
-                    samples[obj.id] = samples(obj.id, timestamp)
+                    samples[obj.id] = Sample(obj.id, timestamp)
                 sample = samples[obj.id]
                 sample.add_position(obj.position)
         return samples
 
-    def load_detections(self): # load detections
+    def load_detections(self):
         detections = []
         for path in self.paths:
             detection = self.load_detection(path)
             detections.append(detection)
         return detections
 
-    def load_detection(self, path): # load detection
+    def load_detection(self, path):
         with open(path, 'r') as file:
             detection_json = json.load(file)
         detection = detection.from_json(detection_json)
         return detection
 
-    def slice_sequences(self): # slice sequences
+    def slice_sequences(self):
         sliced_samples = []
         for sample in self.data_samples:
             slices = sample.slice(self.seq_len, self.min_seq_len)
             sliced_samples.extend(slices)
         return sliced_samples
 
-    def __getitem__(self, index): # get item
+    def __getitem__(self, index):
         sample = copy.deepcopy(self.data_samples[index])
 
         mask = self.compute_mask(sample)[self.obs_hist:]
@@ -106,12 +105,12 @@ class PedestrianDataset(Dataset): # class for storing pedestrian dataset
 
         return observed, [y_delta, mask]
 
-    def compute_mask(self, sample): # compute mask
+    def compute_mask(self, sample):
         mask = np.ones(self.seq_len)
         mask[len(sample):] = 0.
         return mask
 
-    def pad_sequence(self, sample): # pad sequence
+    def pad_sequence(self, sample):
         if len(sample) >= self.seq_len:
             return
 
@@ -119,7 +118,7 @@ class PedestrianDataset(Dataset): # class for storing pedestrian dataset
         for _ in range(padding_size):
             sample.add_position([0, 0])
 
-    def set_name(self, path): # set name
+    def set_name(self, path):
         info_path = os.path.join(path, 'dataset_info.json')
         with open(info_path, 'r') as file:
             dataset_info = json.load(file)

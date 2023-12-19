@@ -66,7 +66,7 @@ class PedestrianDataset(Dataset): # class for storing pedestrian dataset
 
             for obj in detection.objects():
                 if obj.id not in samples:
-                    samples[obj.id] = samples(obj.id, timestamp)
+                    samples[obj.id] = Sample(obj.id, timestamp)
                 sample = samples[obj.id]
                 sample.add_position(obj.position)
         return samples
