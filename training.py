@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.optim as optim
 
 from metrics import *
-from ped_dataset import *
+from pedestrian import *
 
 class RunConfig: # this is a class that contains all the hyperparameters
     sequence_length = 20
@@ -31,8 +31,8 @@ def load_datasets(): # this function loads the datasets
             os.environ['HOME'] = os.environ['USERPROFILE']
         dataset_path = dataset_path.replace('~', os.environ['HOME'])
         print("Loading dataset {}".format(dataset_path))
-        dataset = PedDataset(dataset_path=dataset_path, sequence_length=RunConfig.sequence_length, observed_history=RunConfig.observed_history, \
-                              min_sequence_length=RunConfig.min_sequence_length)
+        dataset = PedestrianDataset(path=dataset_path, seq_len=RunConfig.sequence_length, obs_hist=RunConfig.observed_history, \
+                              min_seq_len=RunConfig.min_sequence_length)
         datasets.append(dataset)
         datasets_size += len(dataset)
     print("Size of all datasets: {}".format(datasets_size))
