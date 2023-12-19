@@ -5,7 +5,7 @@ import copy
 import numpy as np
 import torch
 from torch.utils.data import Dataset
-from dataset_utils import *
+from dataset import *
 
 class PedestrianDataset(Dataset):
     """
