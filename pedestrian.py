@@ -62,13 +62,13 @@ class PedestrianDataset(Dataset): # class for storing pedestrian dataset
         samples = dict()
 
         for detection in detections:
-            timestamp = detection.timestamp
+            timestamp = detection['timestamp']
 
-            for obj in detection.objects():
-                if obj.id not in samples:
-                    samples[obj.id] = samples(obj.id, timestamp)
-                sample = samples[obj.id]
-                sample.add_position(obj.position)
+            for obj in detection['object_list']:
+                if obj['id'] not in samples:
+                    samples[obj['id']] = samples[obj['id'], timestamp]
+                sample = samples[obj['id']]
+                sample.add_position(obj['position'])
         return samples
 
     def load_detections(self): # load detections
@@ -81,7 +81,7 @@ class PedestrianDataset(Dataset): # class for storing pedestrian dataset
     def load_detection(self, path): # load detection
         with open(path, 'r') as file:
             detection_json = json.load(file)
-        detection = detection.from_json(detection_json)
+            detection = detection_json
         return detection
 
     def slice_sequences(self): # slice sequences
