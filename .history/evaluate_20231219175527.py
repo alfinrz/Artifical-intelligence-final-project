@@ -6,7 +6,7 @@ import numpy as np
 import torch.utils.data as Data
 
 from metrics import *
-from pedestrian import *
+from ped_dataset import *
 
 
 class RunConfig:
