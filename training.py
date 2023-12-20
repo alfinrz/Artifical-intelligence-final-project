@@ -46,9 +46,9 @@ class ConstantVelocityModel(nn.Module): # this is a class that contains the cons
         self.linear = nn.Linear(input_size, output_size)
 
     def forward(self, observed): # this function computes the forward pass
-        obs_rel = observed[:, :, 1:] - observed[:, :, :-1]
-        deltas = obs_rel[:, :, -1].unsqueeze(1)
-        y_pred_rel = deltas.repeat(1, 12, 1)
+        obs_rel = observed[1:] - observed[:-1]
+        deltas = obs_rel[-1].unsqueeze(0)
+        y_pred_rel = deltas.repeat(12, 1, 1)
         return self.linear(y_pred_rel.view(y_pred_rel.size(0), -1))
 
 def train_cvm_model(model, train_loader, criterion, optimizer, num_epochs=10): # this function trains the CVM model
@@ -74,7 +74,7 @@ def train_cvm_model(model, train_loader, criterion, optimizer, num_epochs=10): #
             running_loss += loss.item()
 
         avg_loss = running_loss / len(train_loader)
-        print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {avg_loss}")
+        print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {avg_loss}")
         loss_val.append(avg_loss)
     return loss_val
 
@@ -86,8 +86,8 @@ def create_train_loader(trainset, batch_size):
 def plot_training_history(train_loss):
     epochs = range(1, len(train_loss) + 1)
     
-    plt.figure(figsize=(15, 7))
-    plt.plot(epochs, train_loss, label='Training Loss')
+    plt.figure(figsize=(12, 5))
+    plt.plot(epochs, train_loss, "bo-", label='Training Loss')
     plt.xlabel("Epochs")
     plt.ylabel("Loss")
     plt.legend()
@@ -103,7 +103,7 @@ def main():
     train_loader = create_train_loader(train_dataset, batch_size=1)
 
     #Define Input and output size
-    input_size = 12
+    input_size = 2
     output_size = 2
     # Initialize the CVM model, criterion, and optimizer
     cvm_model = ConstantVelocityModel(input_size, output_size)
